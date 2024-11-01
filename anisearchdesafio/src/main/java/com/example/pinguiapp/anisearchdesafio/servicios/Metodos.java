@@ -21,43 +21,70 @@ public class Metodos {
         var datos = convierteDatos.obtenerDatos(json, DatosGenerales.class);
         System.out.println(datos);
 
-        //Animes mejor calificadas
-        System.out.println("Los 3 animes mejor calificados son: ");
-        datos.animes().stream()
-                .sorted(Comparator.comparing(DatosAnimes::calificacion).reversed())
-                .limit(3)
-                .forEach(System.out::println);
-        //Animes peor calificados
-        System.out.println("Los animes peor calificados son: ");
-        datos.animes().stream()
-                .sorted(Comparator.comparing(DatosAnimes::calificacion))
-                .limit(3)
-                .map(a -> a.titulo().toUpperCase())
-                .forEach(System.out::println);
+        //Menu
+        System.out.println("""
+                Selecciona la opciones preferida:
+                1- Conocer animes mejor calificados
+                2- Conocer animes peor calificados
+                3- Buscar un anime por su nombre
+                4- Buscar los mejores animes por su tipologia
+                5- Estadisticas                
+                """);
 
+        var opcion = respuestaUsuario.nextInt();
+        switch (opcion){
 
-        //Buscar anime por nombre
-        System.out.println("Busca tu anime!!! Escribe el nombre del anime que deseas validar");
-        var usuarioAnime = respuestaUsuario.nextLine();
-        json = consumoApi.obtenerDatos(URL_BASE + "?q=" + usuarioAnime.replace(" ", "+"));
-        var datosBusqueda = convierteDatos.obtenerDatos(json, DatosGenerales.class);
-        Optional<DatosAnimes> animeBuscado = datosBusqueda.animes().stream()
-                .filter(a -> a.titulo().toUpperCase().contains(usuarioAnime.toUpperCase()))
-                .findFirst();
-        if(animeBuscado.isPresent()){
-            System.out.println("Anime encontrado");
-            System.out.println(animeBuscado.get());
-        } else {
-            System.out.println("Anime no encontrado");
+            case 1:
+                //Animes mejor calificadas
+                System.out.println("Los 3 animes mejor calificados son: ");
+                datos.animes().stream()
+                        .sorted(Comparator.comparing(DatosAnimes::calificacion).reversed())
+                        .limit(3)
+                        .forEach(System.out::println);
+                break;
+
+            case 2:
+                //Animes peor calificados
+                System.out.println("Los animes peor calificados son: ");
+                datos.animes().stream()
+                        .sorted(Comparator.comparing(DatosAnimes::calificacion))
+                        .limit(3)
+                        .map(a -> a.titulo().toUpperCase())
+                        .forEach(System.out::println);
+                break;
+
+            case 3:
+                //Buscar anime por nombre
+                System.out.println("Busca tu anime!!! Escribe el nombre del anime que deseas validar");
+                respuestaUsuario.nextLine();
+                var usuarioAnime = respuestaUsuario.nextLine();
+                json = consumoApi.obtenerDatos(URL_BASE + "?q=" + usuarioAnime.replace(" ", "+"));
+                var datosBusqueda = convierteDatos.obtenerDatos(json, DatosGenerales.class);
+                Optional<DatosAnimes> animeBuscado = datosBusqueda.animes().stream()
+                        .filter(a -> a.titulo().toUpperCase().contains(usuarioAnime.toUpperCase()))
+                        .findFirst();
+                if(animeBuscado.isPresent()){
+                    System.out.println("Anime encontrado");
+                    System.out.println(animeBuscado.get());
+                } else {
+                    System.out.println("Anime no encontrado");
+                }
+                break;
+
+            case 5:
+                //Generar estadisticas
+                DoubleSummaryStatistics est = datos.animes().stream()
+                        .collect(Collectors.summarizingDouble(DatosAnimes::calificacion));
+                System.out.println("Promedio calificaciones: " + est.getAverage());
+                System.out.println("Calificacion mas alta: " + est.getMax());
+                System.out.println("Calificacion mas baja: " + est.getMin());
+                System.out.println("Total animes calificados: " + est.getCount() );
+                break;
+
+            default:
+                System.out.println("Opcion no valida");
+                break;
         }
 
-
-        //Generar estadisticas
-        DoubleSummaryStatistics est = datos.animes().stream()
-                .collect(Collectors.summarizingDouble(DatosAnimes::calificacion));
-        System.out.println("Promedio calificaciones: " + est.getAverage());
-        System.out.println("Calificacion mas alta: " + est.getMax());
-        System.out.println("Calificacion mas baja: " + est.getMin());
-        System.out.println("Total animes calificados: " + est.getCount() );
     }
 }
