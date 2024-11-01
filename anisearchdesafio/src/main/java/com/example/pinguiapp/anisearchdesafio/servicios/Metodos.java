@@ -27,8 +27,7 @@ public class Metodos {
                 1- Conocer animes mejor calificados
                 2- Conocer animes peor calificados
                 3- Buscar un anime por su nombre
-                4- Buscar los mejores animes por su tipologia
-                5- Estadisticas                
+                5- Estadisticas
                 """);
 
         var opcion = respuestaUsuario.nextInt();
